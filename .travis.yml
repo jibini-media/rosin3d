@@ -1,0 +1,10 @@
+language: java
+jdk:
+- oraclejdk8
+install: mvn install -DskipTests=true -Dgpg.skip=true --settings settings.xml
+script: mvn test -Dgpg.skip=true --settings settings.xml
+#after_success: mvn deploy -DskipTests=true -Dgpg.skip=true --settings settings.xml
+notifications:
+  email:
+    on_success: never
+    on_failure: always

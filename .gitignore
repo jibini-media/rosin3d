@@ -1,0 +1,10 @@
+# Eclipse Files
+.classpath
+.settings/
+.project
+
+# Build Artifacts
+target/
+
+# Test Output
+output/
