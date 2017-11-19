@@ -17,6 +17,11 @@ import net.jibini.rosin.pixel.Pixel;
 import net.jibini.rosin.polygon.Polygon;
 import net.jibini.rosin.vector.Vector;
 
+/**
+ * Various scenarios of types of triangles
+ * 
+ * @author Zach Goethel
+ */
 public class TestRasterizePolygons
 {
 	@BeforeClass

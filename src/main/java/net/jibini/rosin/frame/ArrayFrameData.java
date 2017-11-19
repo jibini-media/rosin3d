@@ -3,6 +3,11 @@ package net.jibini.rosin.frame;
 import net.jibini.rosin.pixel.MappedPixel;
 import net.jibini.rosin.pixel.Pixel;
 
+/**
+ * Screen data held in a three-dimensional array
+ * 
+ * @author Zach Goethel
+ */
 public class ArrayFrameData implements FrameData
 {
 	public static final int ELEMENT_RED = 0;

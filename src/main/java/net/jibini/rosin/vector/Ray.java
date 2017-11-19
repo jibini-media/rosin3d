@@ -1,5 +1,11 @@
 package net.jibini.rosin.vector;
 
+/**
+ * A continuous line with an origin and direction, associated with a length from
+ * creation and traceable to any arbitrary length
+ * 
+ * @author Zach Goethel
+ */
 public class Ray extends Vector
 {
 	private Vector vector, normal;

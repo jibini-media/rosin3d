@@ -8,6 +8,12 @@ import net.jibini.rosin.polygon.Polygon;
 import net.jibini.rosin.vector.Ray;
 import net.jibini.rosin.vector.Vector;
 
+/**
+ * Applies world coordinates to the screen and creates solid figures from
+ * vertices
+ * 
+ * @author Zach Goethel
+ */
 public class Rasterizer
 {
 	public void rasterize(Polygon poly, FrameData frame)
@@ -56,7 +62,7 @@ public class Rasterizer
 			throw new UnsupportedOperationException("AB must be horizontal");
 		if (a.x > b.x)
 		{
-			// A should be left of b, swap order
+			// A should be left of B, swap order
 			rasterizeFlat(b, a, c, frame);
 			return;
 		}
@@ -79,6 +85,7 @@ public class Rasterizer
 		{
 			try
 			{
+				// TODO: Clamp to 0-screen size
 				int begin = (int)ac.getPoint(acLen * (double)(y - start) / (stop - start)).x;
 				int end = (int)bc.getPoint(bcLen * (double)(y - start) / (stop - start)).x;
 				

@@ -1,5 +1,10 @@
 package net.jibini.rosin.pixel;
 
+/**
+ * Screen texel with RGBA and depth attributes
+ * 
+ * @author Zach Goethel
+ */
 public interface Pixel
 {
 	double getRed();

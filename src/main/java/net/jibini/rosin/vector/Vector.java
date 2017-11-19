@@ -1,8 +1,14 @@
 package net.jibini.rosin.vector;
 
+/**
+ * Three-component quantity with no discernible start which has direction and
+ * magnitude, describes one position relative to another
+ * 
+ * @author Zach Goethel
+ */
 public class Vector
 {
-	public double x, y, z, w;
+	public double x, y, z;
 	
 	public Vector(double x, double y, double z)
 	{

@@ -2,6 +2,11 @@ package net.jibini.rosin.pixel;
 
 import net.jibini.rosin.frame.ArrayFrameData;
 
+/**
+ * Pixel implementation which links to a central {@link ArrayFrameData}
+ * 
+ * @author Zach Goethel
+ */
 public class MappedPixel implements Pixel
 {
 	private ArrayFrameData frame;
@@ -23,7 +28,7 @@ public class MappedPixel implements Pixel
 	{
 		frame.setInternalElement(x, y, ArrayFrameData.ELEMENT_RED, value);
 	}
-
+	
 	public double getGreen()
 	{
 		return frame.getInternalElement(x, y, ArrayFrameData.ELEMENT_GREEN);
@@ -33,7 +38,7 @@ public class MappedPixel implements Pixel
 	{
 		frame.setInternalElement(x, y, ArrayFrameData.ELEMENT_GREEN, value);
 	}
-
+	
 	public double getBlue()
 	{
 		return frame.getInternalElement(x, y, ArrayFrameData.ELEMENT_BLUE);
@@ -43,7 +48,7 @@ public class MappedPixel implements Pixel
 	{
 		frame.setInternalElement(x, y, ArrayFrameData.ELEMENT_BLUE, value);
 	}
-
+	
 	public double getAlpha()
 	{
 		return frame.getInternalElement(x, y, ArrayFrameData.ELEMENT_ALPHA);
@@ -53,7 +58,7 @@ public class MappedPixel implements Pixel
 	{
 		frame.setInternalElement(x, y, ArrayFrameData.ELEMENT_ALPHA, value);
 	}
-
+	
 	public double getDepth()
 	{
 		return frame.getInternalElement(x, y, ArrayFrameData.ELEMENT_DEPTH);
