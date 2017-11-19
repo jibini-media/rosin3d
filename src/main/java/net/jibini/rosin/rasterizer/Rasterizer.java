@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import net.jibini.rosin.frame.FrameData;
+import net.jibini.rosin.pixel.Pixel;
 import net.jibini.rosin.polygon.Polygon;
 import net.jibini.rosin.vector.Ray;
 import net.jibini.rosin.vector.Vector;
@@ -23,16 +24,19 @@ public class Rasterizer
 	
 	public void rasterize(Vector a, Vector b, Vector c, FrameData frame)
 	{
-		Vector[] ordered = { a, b, c };
+		Vector[] ordered =
+		{ a, b, c };
 		Arrays.sort(ordered, new Comparator<Vector>()
-				{
-					public int compare(Vector arg0, Vector arg1)
-					{
-						if (arg0.y < arg1.y) return 1;
-						if (arg0.y > arg1.y) return -1;
-						return 0;
-					}
-				});
+		{
+			public int compare(Vector arg0, Vector arg1)
+			{
+				if (arg0.y < arg1.y)
+					return 1;
+				if (arg0.y > arg1.y)
+					return -1;
+				return 0;
+			}
+		});
 		
 		if (ordered[0].y == ordered[1].y)
 		{
@@ -51,22 +55,29 @@ public class Rasterizer
 			Vector d = new Vector(ac.getX(ordered[1].y), ordered[1].y, 0.0);
 			
 			// Draw BDA and BDC
-			rasterizeFlat(ordered[1], d, ordered[0], frame);
-			rasterizeFlat(ordered[1], d, ordered[2], frame);
+			rasterizeFlatSection(ordered[1], d, ordered[0], ordered[0], ordered[1], ordered[2], frame);
+			rasterizeFlatSection(ordered[1], d, ordered[2], ordered[0], ordered[1], ordered[2], frame);
 		}
 	}
 	
 	public void rasterizeFlat(Vector a, Vector b, Vector c, FrameData frame)
+	{
+		rasterizeFlatSection(a, b, c, a, b, c, frame);
+	}
+	
+	public void rasterizeFlatSection(Vector a, Vector b, Vector c, Vector aOriginal, Vector bOriginal, Vector cOriginal,
+			FrameData frame)
 	{
 		if (a.y != b.y)
 			throw new UnsupportedOperationException("AB must be horizontal");
 		if (a.x > b.x)
 		{
 			// A should be left of B, swap order
-			rasterizeFlat(b, a, c, frame);
+			rasterizeFlatSection(b, a, c, aOriginal, bOriginal, cOriginal, frame);
 			return;
 		}
 		
+		// Create rays from AC and BC
 		Vector acVec = new Vector(c);
 		acVec.sub(a);
 		Ray ac = new Ray(a, acVec);
@@ -77,26 +88,47 @@ public class Rasterizer
 		Ray bc = new Ray(b, bcVec);
 		double bcLen = bcVec.length();
 		
-		// Decide whether to go up or down
-		int start = (int)a.y, stop = (int)c.y;
-		int inc = stop > start ? 1 : -1;
+		// Upper and lower screen bounds and screen-clamped values
+		double start = (a.y - 1.0) / -2.0 * frame.getHeight();
+		double stop = (c.y - 1.0) / -2.0 * frame.getHeight();
+		int clampStart = Math.max(0, Math.min((int) start, (int) stop));
+		int clampStop = Math.min(frame.getHeight() - 1, Math.max((int) start, (int) stop));
 		
-		for (int y = start; y != stop + inc; y += inc)
+		for (int y = clampStart; y <= clampStop; y += 1)
 		{
-			try
+			// Interpolate left and right screen bounds on AC and BC
+			double yProg = (y - start) / (stop - start);
+			double begin = (ac.getPoint(acLen * yProg).x + 1.0) / 2.0 * frame.getWidth();
+			double end = (bc.getPoint(bcLen * yProg).x + 1.0) / 2.0 * frame.getWidth();
+			
+			// Screen-clamped values
+			int clampBegin = Math.max(0, (int) begin);
+			int clampEnd = Math.min(frame.getWidth() - 1, (int) end);
+			
+			for (int x = clampBegin; x <= clampEnd; x++)
 			{
-				// TODO: Clamp to 0-screen size
-				int begin = (int)ac.getPoint(acLen * (double)(y - start) / (stop - start)).x;
-				int end = (int)bc.getPoint(bcLen * (double)(y - start) / (stop - start)).x;
+				// double xProg = (double)(x - begin) / (end - begin);
+				Pixel pixel = frame.getPixel(x, y);
+				double[] weights = new double[3];
 				
-				for (int x = begin; x <= end; x ++)
-				{
-					frame.getPixel(x, y).setRed(1.0);
-					frame.getPixel(x, y).setGreen(1.0);
-					frame.getPixel(x, y).setBlue(1.0);
-				}
-			} catch (IndexOutOfBoundsException ignore)
-			{ }
+				// Calculate weights using world coordinate
+				double worldX = ((double)x / frame.getWidth() * 2.0) - 1.0;
+				double worldY = ((double)y / frame.getHeight()) * -2.0 + 1.0;
+				calculateBarycentricWeights(aOriginal, bOriginal, cOriginal, new Vector(worldX, worldY, 0.0), weights);
+				
+				pixel.setRed(Math.min(1.0, Math.max(0.0, weights[0])));
+				pixel.setGreen(Math.min(1.0, Math.max(0.0, weights[1])));
+				pixel.setBlue(Math.min(1.0, Math.max(0.0, weights[2])));
+			}
 		}
+	}
+	
+	public void calculateBarycentricWeights(Vector a, Vector b, Vector c, Vector p, double[] weights)
+	{
+		weights[0] = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y))
+				/ ((b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y));
+		weights[1] = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y))
+				/ ((b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y));
+		weights[2] = 1.0 - weights[0] - weights[1];
 	}
 }
