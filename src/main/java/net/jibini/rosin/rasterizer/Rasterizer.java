@@ -52,7 +52,7 @@ public class Rasterizer
 			Vector acVec = new Vector(ordered[2]);
 			acVec.sub(ordered[0]);
 			Ray ac = new Ray(ordered[0], acVec);
-			Vector d = new Vector(ac.getX(ordered[1].y), ordered[1].y, 0.0);
+			Vector d = new Vector(ac.getX(ordered[1].y), ordered[1].y, ac.getZ(ordered[1].y));
 			
 			// Draw BDA and BDC
 			rasterizeFlatSection(ordered[1], d, ordered[0], ordered[0], ordered[1], ordered[2], frame);
@@ -116,9 +116,21 @@ public class Rasterizer
 				double worldY = ((double)y / frame.getHeight()) * -2.0 + 1.0;
 				calculateBarycentricWeights(aOriginal, bOriginal, cOriginal, new Vector(worldX, worldY, 0.0), weights);
 				
-				pixel.setRed(Math.min(1.0, Math.max(0.0, weights[0])));
-				pixel.setGreen(Math.min(1.0, Math.max(0.0, weights[1])));
-				pixel.setBlue(Math.min(1.0, Math.max(0.0, weights[2])));
+				// Calculate interpolated depth
+				double depth = weights[0] * aOriginal.z + weights[1] * bOriginal.z + weights[2] * cOriginal.z;
+				
+				if (pixel.getAlpha() == 0 || pixel.getDepth() > depth)
+				{
+					pixel.setRed(Math.min(1.0, Math.max(0.0, weights[0])));
+					pixel.setGreen(Math.min(1.0, Math.max(0.0, weights[1])));
+					pixel.setBlue(Math.min(1.0, Math.max(0.0, weights[2])));
+					pixel.setAlpha(1.0);
+					
+					pixel.setDepth(depth);
+					
+					if (Math.abs(depth) > frame.getDepthScale())
+						frame.setDepthScale(Math.abs(depth));
+				}
 			}
 		}
 	}

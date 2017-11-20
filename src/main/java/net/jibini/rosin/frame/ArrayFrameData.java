@@ -19,6 +19,7 @@ public class ArrayFrameData implements FrameData
 	
 	private double[][][] frame;
 	private int width, height;
+	private double depthScale = 1.0;
 	
 	public ArrayFrameData(int width, int height)
 	{
@@ -55,5 +56,15 @@ public class ArrayFrameData implements FrameData
 	public void setInternalElement(int x, int y, int id, double value)
 	{
 		frame[x][y][id] = value;
+	}
+
+	public double getDepthScale()
+	{
+		return depthScale;
+	}
+
+	public void setDepthScale(double scale)
+	{
+		this.depthScale = scale;
 	}
 }

@@ -14,4 +14,8 @@ public interface FrameData
 	int getWidth();
 	
 	int getHeight();
+	
+	double getDepthScale();
+	
+	void setDepthScale(double scale);
 }

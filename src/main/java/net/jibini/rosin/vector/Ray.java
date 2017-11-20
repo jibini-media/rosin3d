@@ -46,4 +46,9 @@ public class Ray extends Vector
 	{
 		return normal.x * ((y - this.y) / normal.y) + x;
 	}
+	
+	public double getZ(double y)
+	{
+		return normal.z * ((y - this.y) / normal.y) + z;
+	}
 }
