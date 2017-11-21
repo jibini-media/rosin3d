@@ -94,7 +94,7 @@ public class Rasterizer
 		int clampStart = Math.max(0, Math.min((int) start, (int) stop));
 		int clampStop = Math.min(frame.getHeight() - 1, Math.max((int) start, (int) stop));
 		
-		for (int y = clampStart; y <= clampStop; y += 1)
+		for (int y = clampStart; y < clampStop; y += 1)
 		{
 			// Interpolate left and right screen bounds on AC and BC
 			double yProg = (y - start) / (stop - start);
@@ -118,14 +118,14 @@ public class Rasterizer
 				
 				// Calculate interpolated depth
 				double depth = weights[0] * aOriginal.z + weights[1] * bOriginal.z + weights[2] * cOriginal.z;
+				boolean valid = (weights[0] <= 1.13) && (weights[1] <= 1.13) && (weights[2] <= 1.13);
 				
-				if (pixel.getAlpha() == 0 || pixel.getDepth() > depth)
+				if ((pixel.getAlpha() == 0 || pixel.getDepth() > depth) && valid)
 				{
 					pixel.setRed(Math.min(1.0, Math.max(0.0, weights[0])));
 					pixel.setGreen(Math.min(1.0, Math.max(0.0, weights[1])));
 					pixel.setBlue(Math.min(1.0, Math.max(0.0, weights[2])));
 					pixel.setAlpha(1.0);
-					
 					pixel.setDepth(depth);
 					
 					if (Math.abs(depth) > frame.getDepthScale())

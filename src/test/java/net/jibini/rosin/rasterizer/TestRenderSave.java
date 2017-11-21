@@ -43,7 +43,7 @@ public class TestRenderSave
 	public static BufferedImage convertDepthImage(FrameData frame)
 	{
 		BufferedImage image = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
-		
+
 		for (int x = 0; x < frame.getWidth(); x++)
 		{
 			for (int y = 0; y < frame.getHeight(); y++)
